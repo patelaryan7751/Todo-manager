@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const todoList = () => {
   all = [];
   const add = (todoItem) => {
@@ -7,6 +8,13 @@ const todoList = () => {
     all[index].completed = true;
   };
 
+  const formattedDate = (d) => {
+    return d.toISOString().split("T")[0];
+  };
+
+  var dateToday = new Date();
+  const today = formattedDate(dateToday);
+
   const makeDateComparable = (date) => {
     const format_Date = new Date(`${date}`);
     return format_Date;
@@ -14,7 +22,7 @@ const todoList = () => {
 
   const overdue = () => {
     return all.filter(
-      (todo, index) =>
+      (todo) =>
         (makeDateComparable(todo.dueDate) < makeDateComparable(today) &&
           todo.completed === false) === true
     );
@@ -22,14 +30,13 @@ const todoList = () => {
 
   const dueToday = () => {
     return all.filter(
-      (todo, index) =>
-        +makeDateComparable(todo.dueDate) === +makeDateComparable(today)
+      (todo) => +makeDateComparable(todo.dueDate) === +makeDateComparable(today)
     );
   };
 
   const dueLater = () => {
     return all.filter(
-      (todo, index) =>
+      (todo) =>
         (makeDateComparable(todo.dueDate) > makeDateComparable(today) &&
           todo.completed === false) === true
     );
@@ -37,7 +44,7 @@ const todoList = () => {
 
   const toDisplayableList = (list) => {
     let OUTPUT_STRING = "";
-    list?.map((todo, index) => {
+    list?.map((todo) => {
       OUTPUT_STRING =
         OUTPUT_STRING +
         `${todo.completed === true ? "[x]" : "[ ]"} ${todo.title} ${
