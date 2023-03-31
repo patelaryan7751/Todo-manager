@@ -1,4 +1,5 @@
 //  listTodos.js
+/* eslint-disable no-undef */
 const db = require("./models/index");
 
 const listTodo = async () => {
