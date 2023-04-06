@@ -61,16 +61,21 @@ app.put("/todos/:id/markAsCompleted", async function (request, response) {
 app.delete("/todos/:id", async function (request, response) {
   console.log("We have to delete a Todo with ID: ", request.params.id);
   // FILL IN YOUR CODE HERE
-  try {
-    const deleteTodo = await Todo.destroy({
-      where: {
-        id: request.params.id,
-      },
-    });
-    return response.json(deleteTodo);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
+  const todo = await Todo.findByPk(request.params.id);
+  if (todo) {
+    try {
+      await Todo.destroy({
+        where: {
+          id: request.params.id,
+        },
+      });
+      return response.send(true);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+  } else {
+    return response.send(false);
   }
 
   // First, we have to query our database to delete a Todo by ID.

@@ -85,9 +85,21 @@ describe("Todo Application", function () {
       (todo) => todo.title === "Test for deleting a Todo"
     );
     const getNewlyAddedTodoId = getNewlyAddedTodo[0].id;
-    await agent.delete(`/todos/${getNewlyAddedTodoId}`);
+    const responseAfterDeletingTodo = await agent.delete(
+      `/todos/${getNewlyAddedTodoId}`
+    );
+    const parsedResponseAfterDeletingTodo = JSON.parse(
+      responseAfterDeletingTodo.text
+    );
     const responseAfterDelete = await agent.get("/todos");
     const parsedResponseAfterDelete = JSON.parse(responseAfterDelete.text);
+    const responseAfterDeletingADeletedTodo = await agent.delete(
+      `/todos/${getNewlyAddedTodoId}`
+    );
+    const parsedResponseAfterDeletingADeletedTodo = JSON.parse(
+      responseAfterDeletingADeletedTodo.text
+    );
+
     expect(
       parsedResponseAfterDelete.filter((todo) => todo.id === 5).length
     ).toBe(0);
@@ -96,5 +108,7 @@ describe("Todo Application", function () {
         (todo) => todo.title === "Test for deleting a Todo"
       ).length
     ).toBe(0);
+    expect(parsedResponseAfterDeletingTodo).toBe(true);
+    expect(parsedResponseAfterDeletingADeletedTodo).toBe(false);
   });
 });
