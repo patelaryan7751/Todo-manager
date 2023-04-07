@@ -10,14 +10,10 @@
 </head>
 <body>
     <%- include('header.ejs')  %>
-
-    <tabel>
-        <% for(let i = 0; i < allTodos.length; i++) {%>
-            <tr>
-               <%= allTodos[i].title %>
-            </tr>
-      <%  } %>
-        
+    <%- include('todos.ejs')  %>       
     </tabel>
 </body>
+<footer>
+    <%- include('footer.ejs')  %>
+</footer>
 </html>
