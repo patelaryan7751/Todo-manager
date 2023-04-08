@@ -3,7 +3,7 @@
 <% let dueToday = allTodos.filter((todo) => todo.dueDate === new Date().toISOString().slice(0, 10)); %>
 
 <div>
-    <h5>Overdue <span id="count-overdue" class="bg-gray-300 py-1 px-2 rounded"><%= overDue.length %></span></h5>
+    <h5 class="inline-block">Overdue</h5> <span id="count-overdue" class="bg-gray-300 py-1 px-2 rounded"><%= overDue.length %></span>
 <ul class="list-none">
     <% overDue.map((todo) => { %>
       <li class="Todo-Item">
@@ -20,7 +20,7 @@
         </li>
     <% }); %>
   </ul>
-  <h5>Due Today <span id="count-due-today" class="bg-gray-300 py-1 px-2 rounded"><%= dueToday.length %></span></h5>
+  <h5 class="inline-block">Due Today</h5> <span id="count-due-today" class="bg-gray-300 py-1 px-2 rounded"><%= dueToday.length %></span>
   <ul class="list-none">
       <% dueToday.map((todo) => { %>
         <li class="Todo-Item">
@@ -37,7 +37,7 @@
           </li>
       <% }); %>
     </ul>
-    <h5>Due Later <span id="count-due-later" class="bg-gray-300 py-1 px-2 rounded"><%= dueLater.length %></span></h5>
+    <h5 class="inline-block">Due Later</h5> <span id="count-due-later" class="bg-gray-300 py-1 px-2 rounded"><%= dueLater.length %></span>
   <ul class="list-none">
       <% dueLater.map((todo) => { %>
         <li class="Todo-Item">
