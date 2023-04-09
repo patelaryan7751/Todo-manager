@@ -20,8 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     static async remove(id) {
       return this.destroy({ where: { id: id } });
     }
-    markAsCompleted() {
-      return this.update({ completed: true });
+    setCompletionStatus(status) {
+      return this.update({ completed: status });
     }
   }
   Todo.init(
