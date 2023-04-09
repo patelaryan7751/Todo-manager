@@ -65,7 +65,10 @@
                 </div>
                 
             </form>
-            <%- include("todos.ejs") %>
+            <%- include("todos.ejs",{todoHeading:"Overdue",todos:overdueTodos}) %>
+            <%- include("todos.ejs",{todoHeading:"Due Today",todos:dueTodayTodos}) %>
+            <%- include("todos.ejs",{todoHeading:"Due Later",todos: dueLaterTodos}) %>
+            <%- include("todos.ejs",{todoHeading:"Completed Items",todos: completedTodos}) %>
         </div>
     </div>
     

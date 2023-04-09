@@ -17,10 +17,27 @@ app.set("view engine", "ejs");
 // eslint-disable-next-line no-unused-vars
 app.get("/", async (request, response) => {
   const allTodos = await Todo.getTodos();
+  const overdueTodos = await Todo.getOverdueTodos();
+  const dueTodayTodos = await Todo.getDueTodayTodos();
+  const dueLaterTodos = await Todo.getDueLaterTodos();
+  const completedTodos = await Todo.getCompletedTodos();
   if (request.accepts("html")) {
-    response.render("index", { allTodos, csrfToken: request.csrfToken() });
+    response.render("index", {
+      allTodos,
+      overdueTodos,
+      dueTodayTodos,
+      dueLaterTodos,
+      completedTodos,
+      csrfToken: request.csrfToken(),
+    });
   } else {
-    response.json(allTodos);
+    response.json({
+      allTodos,
+      overdueTodos,
+      dueTodayTodos,
+      dueLaterTodos,
+      completedTodos,
+    });
   }
 });
 

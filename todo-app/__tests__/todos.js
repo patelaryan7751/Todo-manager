@@ -52,8 +52,10 @@ describe("Todo Application", function () {
       .get("/")
       .set("Accept", "application/json");
     const parsedGroupedResponse = JSON.parse(groupedTodoResponse.text);
-    const todoCount = parsedGroupedResponse.length;
-    const latestTodo = parsedGroupedResponse[todoCount - 1];
+    console.log(parsedGroupedResponse, "ll");
+    const allTodos = parsedGroupedResponse.allTodos;
+    const todoCount = allTodos.length;
+    const latestTodo = allTodos[todoCount - 1];
     res = await agent.get("/");
     csrfToken = extractCSRFToken(res);
     const markCompleteResponse = await agent
@@ -79,8 +81,9 @@ describe("Todo Application", function () {
       .get("/")
       .set("Accept", "application/json");
     const parsedGroupedResponse = JSON.parse(groupedTodoResponse.text);
-    const todoCount = parsedGroupedResponse.length;
-    const latestTodo = parsedGroupedResponse[todoCount - 1];
+    const allTodos = parsedGroupedResponse.allTodos;
+    const todoCount = allTodos.length;
+    const latestTodo = allTodos[todoCount - 1];
     res = await agent.get("/");
     csrfToken = extractCSRFToken(res);
     const markCompleteResponse = await agent
@@ -106,8 +109,9 @@ describe("Todo Application", function () {
       .get("/")
       .set("Accept", "application/json");
     const parsedGroupedResponse = JSON.parse(groupedTodoResponse.text);
-    const todoCount = parsedGroupedResponse.length;
-    const latestTodo = parsedGroupedResponse[todoCount - 1];
+    const allTodos = parsedGroupedResponse.allTodos;
+    const todoCount = allTodos.length;
+    const latestTodo = allTodos[todoCount - 1];
     res = await agent.get("/");
     csrfToken = extractCSRFToken(res);
     const deleteTodoResponse = await agent
