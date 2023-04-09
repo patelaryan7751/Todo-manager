@@ -1,10 +1,14 @@
 /* eslint-disable no-undef */
 const express = require("express");
+const csrf = require("csurf");
 const app = express();
 const { Todo } = require("./models");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser("shh! some secret string"));
+app.use(csrf({ cookie: true }));
 const path = require("path");
 
 // set ejs as view engine
@@ -14,7 +18,7 @@ app.set("view engine", "ejs");
 app.get("/", async (request, response) => {
   const allTodos = await Todo.getTodos();
   if (request.accepts("html")) {
-    response.render("index", { allTodos });
+    response.render("index", { allTodos, csrfToken: request.csrfToken() });
   } else {
     response.json(allTodos);
   }
