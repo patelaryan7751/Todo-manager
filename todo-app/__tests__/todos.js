@@ -58,7 +58,6 @@ describe("Todo Application", function () {
     });
     const response = await agent.get("/todos");
     const parsedResponse = JSON.parse(response.text);
-    console.log(parsedResponse, "hi");
     expect(parsedResponse.length).toBe(totalTodosCountBefore + 1);
   });
 
