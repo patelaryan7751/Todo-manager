@@ -8,52 +8,67 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      Todo.belongsTo(models.User, {
+        foreignKey: "userId",
+      });
     }
 
-    static getTodos() {
-      return this.findAll();
+    static getTodos(userId) {
+      return this.findAll({
+        where: {
+          userId,
+        },
+      });
     }
-    static getOverdueTodos() {
+    static getOverdueTodos(userId) {
       return this.findAll({
         where: {
           dueDate: {
             [Op.lt]: new Date().toISOString().slice(0, 10),
           },
+          userId,
           completed: false,
         },
       });
     }
-    static getDueTodayTodos() {
+    static getDueTodayTodos(userId) {
       return this.findAll({
         where: {
           dueDate: new Date().toISOString().slice(0, 10),
           completed: false,
         },
+        userId,
       });
     }
-    static getDueLaterTodos() {
+    static getDueLaterTodos(userId) {
       return this.findAll({
         where: {
           dueDate: {
             [Op.gt]: new Date().toISOString().slice(0, 10),
           },
           completed: false,
+          userId,
         },
       });
     }
-    static getCompletedTodos() {
+    static getCompletedTodos(userId) {
       return this.findAll({
         where: {
           completed: true,
         },
+        userId,
       });
     }
-    static addTodo({ title, dueDate }) {
-      return this.create({ title: title, dueDate: dueDate, completed: false });
+    static addTodo({ title, dueDate, userId }) {
+      return this.create({
+        title: title,
+        dueDate: dueDate,
+        completed: false,
+        userId,
+      });
     }
-    static async remove(id) {
-      return this.destroy({ where: { id: id } });
+    static async remove(id, userId) {
+      return this.destroy({ where: { id, userId } });
     }
     setCompletionStatus(status) {
       return this.update({ completed: status });
