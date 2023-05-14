@@ -8,9 +8,11 @@ const cookieParser = require("cookie-parser");
 const passport = require("passport");
 const connectEnsureLogin = require("connect-ensure-login");
 const session = require("express-session");
+const flash = require("connect-flash");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
+app.use(flash());
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({ extended: false }));
@@ -25,6 +27,7 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+
 passport.use(
   new LocalStrategy(
     {
@@ -33,20 +36,21 @@ passport.use(
     },
     (username, password, done) => {
       User.findOne({ where: { email: username } })
-        .then(async (user) => {
+        .then(async function (user) {
           const result = await bcrypt.compare(password, user.password);
           if (result) {
             return done(null, user);
           } else {
-            return done("Invalid password");
+            return done(null, false, { message: "Invalid password" });
           }
         })
         .catch((err) => {
-          return err;
+          return done(err);
         });
     }
   )
 );
+
 passport.serializeUser((user, done) => {
   console.log("serializing user in session ", user.id);
   done(null, user.id);
@@ -63,7 +67,13 @@ passport.deserializeUser((id, done) => {
 });
 
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+
 const path = require("path");
+app.set("views", path.join(__dirname, "views"));
+app.use(function (request, response, next) {
+  response.locals.messages = request.flash();
+  next();
+});
 
 // set ejs as view engine
 app.set("view engine", "ejs");
@@ -81,6 +91,8 @@ app.get(
   "/todos",
   connectEnsureLogin.ensureLoggedIn(),
   async (request, response) => {
+    console.log(request.user);
+    const loggedInUserFirstName = request.user.firstName;
     const loggedInUser = request.user.id;
     const allTodos = await Todo.getTodos(loggedInUser);
     const overdueTodos = await Todo.getOverdueTodos(loggedInUser);
@@ -94,6 +106,7 @@ app.get(
         dueTodayTodos,
         dueLaterTodos,
         completedTodos,
+        loggedInUserFirstName,
         csrfToken: request.csrfToken(),
       });
     } else {
@@ -122,6 +135,19 @@ app.post("/users", async (request, response) => {
   const hashedPwd = await bcrypt.hash(request.body.password, saltRounds);
   // Have to create the user here
   console.log(hashedPwd);
+
+  if (request.body.firstName.trim() === "") {
+    request.flash("error", "First name cannot be empty");
+    return response.redirect("/signup");
+  }
+  if (request.body.email.trim() === "") {
+    request.flash("error", "Email cannot be empty");
+    return response.redirect("/signup");
+  }
+  if (request.body.password.trim() === "") {
+    request.flash("error", "Password cannot be empty");
+    return response.redirect("/signup");
+  }
   try {
     const user = await User.create({
       firstName: request.body.firstName,
@@ -146,8 +172,11 @@ app.get("/login", (request, response) => {
 
 app.post(
   "/session",
-  passport.authenticate("local", { failureRedirect: "/login" }),
-  (request, response) => {
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  function (request, response) {
     console.log(request.user);
     response.redirect("/todos");
   }
@@ -163,7 +192,7 @@ app.get("/signout", (request, response, next) => {
 });
 
 // eslint-disable-next-line no-unused-vars
-app.get("/todos", async function (_request, response) {
+app.get("/todos", async function (request, response) {
   console.log("Processing list of all Todos ...");
   // FILL IN YOUR CODE HERE
   try {
@@ -193,6 +222,18 @@ app.post(
   connectEnsureLogin.ensureLoggedIn(),
   async function (request, response) {
     console.log(request.user);
+    if (request.body.title.trim() === "") {
+      request.flash("error", "Title cannot be empty");
+      return response.redirect("/todos");
+    }
+    if (request.body.title.trim().length < 5) {
+      request.flash("error", "Title length should be greater than 5 ");
+      return response.redirect("/todos");
+    }
+    if (request.body.dueDate.trim() === "") {
+      request.flash("error", "Due date cannot be empty");
+      return response.redirect("/todos");
+    }
     try {
       await Todo.addTodo({
         title: request.body.title,
