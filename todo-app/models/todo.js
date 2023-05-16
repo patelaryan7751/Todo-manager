@@ -36,8 +36,8 @@ module.exports = (sequelize, DataTypes) => {
         where: {
           dueDate: new Date().toISOString().slice(0, 10),
           completed: false,
+          userId,
         },
-        userId,
       });
     }
     static getDueLaterTodos(userId) {
@@ -55,8 +55,8 @@ module.exports = (sequelize, DataTypes) => {
       return this.findAll({
         where: {
           completed: true,
+          userId,
         },
-        userId,
       });
     }
     static addTodo({ title, dueDate, userId }) {

@@ -45,7 +45,8 @@ passport.use(
           }
         })
         .catch((err) => {
-          return done(err);
+          console.log(err);
+          return done(null, false, { message: "Invalid account credentials" });
         });
     }
   )
@@ -67,6 +68,14 @@ passport.deserializeUser((id, done) => {
 });
 
 app.use(csrf("this_should_be_32_character_long", ["POST", "PUT", "DELETE"]));
+const ensureNotAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    // User is authenticated, redirect to "/todos" or any other appropriate page
+    return res.redirect("/todos");
+  }
+  // User is not authenticated, continue to the next middleware
+  return next();
+};
 
 const path = require("path");
 app.set("views", path.join(__dirname, "views"));
@@ -79,7 +88,7 @@ app.use(function (request, response, next) {
 app.set("view engine", "ejs");
 
 // eslint-disable-next-line no-unused-vars
-app.get("/", async (request, response) => {
+app.get("/", ensureNotAuthenticated, async (request, response) => {
   response.render("index", {
     title: "Todo application",
     csrfToken: request.csrfToken(),
@@ -123,7 +132,7 @@ app.get(
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/signup", (request, response) => {
+app.get("/signup", ensureNotAuthenticated, (request, response) => {
   response.render("signup", {
     title: "Signup",
     csrfToken: request.csrfToken(),
@@ -158,15 +167,17 @@ app.post("/users", async (request, response) => {
     request.login(user, (err) => {
       if (err) {
         console.log(err);
+        request.flash("error", "User account already exists");
       }
       response.redirect("/todos");
     });
   } catch (error) {
     console.log(error);
+    request.flash("error", "User account already exists");
   }
 });
 
-app.get("/login", (request, response) => {
+app.get("/login", ensureNotAuthenticated, (request, response) => {
   response.render("login", { title: "Login", csrfToken: request.csrfToken() });
 });
 
@@ -192,20 +203,24 @@ app.get("/signout", (request, response, next) => {
 });
 
 // eslint-disable-next-line no-unused-vars
-app.get("/todos", async function (request, response) {
-  console.log("Processing list of all Todos ...");
-  // FILL IN YOUR CODE HERE
-  try {
-    const todos = await Todo.findAll();
-    return response.json(todos);
-  } catch (error) {
-    console.log(error);
-    return response.status(422).json(error);
+app.get(
+  "/todos",
+  connectEnsureLogin.ensureLoggedIn(),
+  async function (request, response) {
+    console.log("Processing list of all Todos ...");
+    // FILL IN YOUR CODE HERE
+    try {
+      const todos = await Todo.findAll();
+      return response.json(todos);
+    } catch (error) {
+      console.log(error);
+      return response.status(422).json(error);
+    }
+    // First, we have to query our PostgerSQL database using Sequelize to get list of all Todos.
+    // Then, we have to respond with all Todos, like:
+    // response.send(todos)
   }
-  // First, we have to query our PostgerSQL database using Sequelize to get list of all Todos.
-  // Then, we have to respond with all Todos, like:
-  // response.send(todos)
-});
+);
 
 app.get("/todos/:id", async function (request, response) {
   try {
